@@ -22,7 +22,7 @@ function calcEMA(closes, period = 20) {
 
 /**
  * Detecta si hay un retroceso alcista (bueno para abrir short).
- * Señal: RSI > 70 (sobrecompra) Y precio por encima de EMA20.
+ * Señal: RSI >= `rsiOverbought` (configurable, por defecto 40) y precio por encima de EMA20.
  * Esto indica un rebote/retroceso en tendencia bajista → oportunidad de short.
  *
  * @param {Array} klines - Velas de Binance
@@ -31,7 +31,7 @@ function calcEMA(closes, period = 20) {
  */
 function detectRetrace(klines, config) {
   const closes = klines.map((k) => k.close);
-  const { rsiPeriod = 14, rsiOverbought = 70, emaPeriod = 20 } = config;
+  const { rsiPeriod = 14, rsiOverbought = 40, emaPeriod = 20 } = config;
 
   const rsiValues = calcRSI(closes, rsiPeriod);
   const emaValues = calcEMA(closes, emaPeriod);

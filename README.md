@@ -23,7 +23,7 @@ Cuando no hay señal, el bot reporta el estado de RSI y EMA en consola para diag
 
 ## Estrategia
 
-- **Capital:** $3.000 por par → 30 partes de $100
+- **Capital:** $3.000 por par → 60 partes (valor por parte calculado en `config.js` = $50)
 - **Entrada inicial:** 3 partes al detectar señal de entrada (RSI 4h ≥ 40)
 - **DCA:** máximo 1 recarga por día por par, en el momento óptimo (RSI 1h ≥ 50)
   - PnL hasta −5% → 3 partes
@@ -127,13 +127,24 @@ El bot imprime en consola el estado de cada par en cada chequeo y envía alertas
 |---|---|---|
 | `pairs` | `['ETHUSDT', 'ADAUSDT']` | Pares a monitorear |
 | `leverage` | `5` | Leverage de la estrategia |
-| `totalParts` | `30` | Partes totales de capital |
-| `partValue` | `100` | USD por parte |
+| `capitalPerPair` | `3000` | Capital total por par en USD |
+| `totalParts` | `60` | Partes totales de capital |
 | `initialParts` | `3` | Partes en la entrada inicial |
-| `rsiOverbought` | `40` | Umbral RSI 4h para señal de entrada |
+| `dcaRules` | `[{maxLoss:-5,parts:3},{maxLoss:-10,parts:4},{maxLoss:-15,parts:5},{maxLoss:-Infinity,parts:6}]` | Reglas DCA: pérdida en % cuenta → partes a agregar |
+| `maxDCAPerDay` | `1` | Máximo recargas DCA por día por par |
 | `takeProfitPercent` | `3` | % bajada de precio para TP (= 15% cuenta a 5x) |
 | `dcaOptimal1hRSI` | `50` | RSI mínimo 1h para DCA |
 | `dcaFallbackHour` | `21` | Hora local del fallback DCA |
 | `liquidationAlertPercent` | `5` | % distancia a liquidación para alerta |
 | `checkCron` | `'0 */1 * * *'` | Frecuencia de chequeo (cron) |
 | `dailySummaryCron` | `'0 22 * * *'` | Hora del resumen diario (cron) |
+
+### Detalle de indicadores (`config.js.indicators`)
+
+| Parámetro | Valor por defecto | Descripción |
+|---|---|---|
+| `rsiPeriod` | `14` | Periodo RSI utilizado |
+| `rsiOverbought` | `40` | Umbral RSI para señal de entrada (4h) |
+| `emaPeriod` | `20` | Periodo EMA utilizado |
+| `timeframe` | `'4h'` | Timeframe para el análisis principal |
+| `klinesLimit` | `100` | Número de velas históricas a consultar |

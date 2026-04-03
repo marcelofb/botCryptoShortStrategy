@@ -182,8 +182,7 @@ async function main() {
 
   // Chequeo inicial al arrancar
   await checkPairs();
-
-  // Cron: chequeo cada 4 horas
+  // Cron: chequeo según `config.checkCron` (por defecto cada 1 hora)
   cron.schedule(config.checkCron, async () => {
     try {
       await checkPairs();
