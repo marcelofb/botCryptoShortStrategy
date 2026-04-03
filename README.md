@@ -46,7 +46,8 @@ Cuando no hay señal, el bot reporta el estado de RSI y EMA en consola para diag
 | Indicadores | `technicalindicators` — RSI(14), EMA(20) |
 | Alertas | `node-telegram-bot-api` |
 | Scheduling | `node-cron` |
-| Persistencia | JSON local (`data/state.json`) |
+| HTTP | `axios` — requests a Binance API |
+| Persistencia | JSON local (`data/state.json`, `data/history.json`) |
 | Config | `dotenv` |
 
 ---
@@ -62,11 +63,15 @@ crypto-alert-bot/
 │   ├── position.js     # Estado de posiciones, persistencia
 │   ├── binance.js      # Wrapper API Binance
 │   ├── telegram.js     # Mensajes y alertas Telegram
+│   ├── history.js      # Registro histórico de operaciones
 │   └── utils.js        # Formateo USD, %, precios
 ├── data/
-│   └── state.json      # Estado persistido de posiciones
+│   ├── state.json      # Estado persistido de posiciones activas
+│   └── history.json    # Historial de operaciones cerradas
 ├── config.js           # Parámetros de la estrategia
 ├── .env                # Credenciales Telegram (no commitear)
+├── .env.example        # Plantilla para el archivo .env
+├── .nvmrc              # Versión de Node requerida (20.20.2)
 ├── package.json
 └── README.md
 ```
