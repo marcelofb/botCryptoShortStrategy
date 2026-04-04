@@ -12,7 +12,7 @@ Cada hora el bot consulta la API pública de Binance, analiza indicadores técni
 | Alerta | Cuándo se dispara |
 |---|---|
 | 📉 **Entrada** | RSI 4h ≥ 40, con precio sobre EMA20 (señal fuerte) o sin ella (señal media) |
-| 🔄 **DCA** | PnL negativo según reglas de pérdida (−5/−10/−15%/más) |
+| 🔄 **DCA** | PnL positivo hasta +5% (señal de recarga leve) o negativo según reglas de pérdida (−5/−10/−15%/más) |
 | ✅ **Take Profit** | PnL acumulado ≥ +15% |
 | ⚠️ **Riesgo** | Precio a menos del 5% del precio de liquidación estimado |
 | 📋 **Resumen diario** | Todos los días a las 22:00 (hora local) |
@@ -23,9 +23,11 @@ Cuando no hay señal, el bot reporta el estado de RSI y EMA en consola para diag
 
 ## Estrategia
 
-- **Capital:** $3.000 por par → 60 partes (valor por parte calculado en `config.js` = $50)
-- **Entrada inicial:** 3 partes al detectar señal de entrada (RSI 4h ≥ 40)
+- **Capital:** $3.000 por par → 30 partes (valor por parte calculado en `config.js` = $100)
+- **Entrada inicial:** 3 partes al detectar señal de entrada (RSI 4h ≥ 70)
 - **DCA:** máximo 1 recarga por día por par, en el momento óptimo (RSI 1h ≥ 50)
+  - PnL más de +5% → 1 parte
+  - PnL hasta +5% → 2 partes
   - PnL hasta −5% → 3 partes
   - PnL hasta −10% → 4 partes
   - PnL hasta −15% → 5 partes
@@ -133,9 +135,9 @@ El bot imprime en consola el estado de cada par en cada chequeo y envía alertas
 | `pairs` | `['ETHUSDT', 'ADAUSDT']` | Pares a monitorear |
 | `leverage` | `5` | Leverage de la estrategia |
 | `capitalPerPair` | `3000` | Capital total por par en USD |
-| `totalParts` | `60` | Partes totales de capital |
+| `totalParts` | `30` | Partes totales de capital |
 | `initialParts` | `3` | Partes en la entrada inicial |
-| `dcaRules` | `[{maxLoss:-5,parts:3},{maxLoss:-10,parts:4},{maxLoss:-15,parts:5},{maxLoss:-Infinity,parts:6}]` | Reglas DCA: pérdida en % cuenta → partes a agregar |
+| `dcaRules` | `[{minPnl:5,parts:1},{minPnl:0,parts:2},{minPnl:-5,parts:3},{minPnl:-10,parts:4},{minPnl:-15,parts:5},{minPnl:-Infinity,parts:6}]` | Reglas DCA: PnL en % cuenta → partes a agregar |
 | `maxDCAPerDay` | `1` | Máximo recargas DCA por día por par |
 | `takeProfitPercent` | `3` | % bajada de precio para TP (= 15% cuenta a 5x) |
 | `dcaOptimal1hRSI` | `50` | RSI mínimo 1h para DCA |
@@ -149,7 +151,7 @@ El bot imprime en consola el estado de cada par en cada chequeo y envía alertas
 | Parámetro | Valor por defecto | Descripción |
 |---|---|---|
 | `rsiPeriod` | `14` | Periodo RSI utilizado |
-| `rsiOverbought` | `40` | Umbral RSI para señal de entrada (4h) |
+| `rsiOverbought` | `70` | Umbral RSI para señal de entrada (4h) |
 | `emaPeriod` | `20` | Periodo EMA utilizado |
 | `timeframe` | `'4h'` | Timeframe para el análisis principal |
 | `klinesLimit` | `100` | Número de velas históricas a consultar |

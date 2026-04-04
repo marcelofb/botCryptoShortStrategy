@@ -17,7 +17,8 @@ function shouldOpenShort(klines) {
 /**
  * Evalúa si hay que hacer DCA (agregar posición) y cuántas partes.
  * Reglas según % negativo vs precio promedio:
- *   - Positivo o 0%: no operar
+ *   - Más de +5%: 1 parte
+ *   - Hasta +5%: 2 partes
  *   - Hasta -5%: 3 partes
  *   - Hasta -10%: 4 partes
  *   - Hasta -15%: 5 partes
@@ -43,11 +44,6 @@ function shouldDCA(position, currentPrice, klines1h = null) {
   const today = localDateString();
   if (position.lastDCADate === today) {
     return { shouldDCA: false, partsToAdd: 0, pnlPercent: pnlCuenta, reason: `Ya se realizó 1 DCA hoy (${today})`, rsi1h: null };
-  }
-
-  // Si está en ganancia, no hacer DCA
-  if (pnlPercent >= 0) {
-    return { shouldDCA: false, partsToAdd: 0, pnlPercent: pnlCuenta, reason: 'Posición en ganancia, no se opera', rsi1h: null };
   }
 
   // Si no quedan partes, no se puede hacer DCA
@@ -77,7 +73,7 @@ function shouldDCA(position, currentPrice, klines1h = null) {
   // Determinar partes según reglas de DCA (comparando PnL en cuenta = precio × leverage)
   let partsToAdd = 0;
   for (const rule of config.dcaRules) {
-    if (pnlCuenta >= rule.maxLoss) {
+    if (pnlCuenta >= rule.minPnl) {
       partsToAdd = rule.parts;
       break;
     }

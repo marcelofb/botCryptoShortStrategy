@@ -9,7 +9,7 @@ module.exports = {
   capitalPerPair: 3000,
 
   // Número de partes en que se divide el capital
-  totalParts: 60,
+  totalParts: 30,
 
   // Valor de cada parte en USD (calculado)
   get partValue() { return this.capitalPerPair / this.totalParts; },
@@ -17,13 +17,16 @@ module.exports = {
   // Partes para la entrada inicial
   initialParts: 3,
 
-  // Reglas de DCA: % de pérdida en cuenta (considerando 5x leverage)
-  // Ej: -5% cuenta = -1% precio con 5x
+  // Reglas de DCA: % de PnL en cuenta (considerando 5x leverage)
+  // Se aplica la primera regla cuyo minPnl <= pnlCuenta (ordenadas de mayor a menor)
+  // Ej: +5% cuenta = +1% precio con 5x | -5% cuenta = -1% precio con 5x
   dcaRules: [
-    { maxLoss: -5,        parts: 3 },  // hasta -5% cuenta  → 3 partes
-    { maxLoss: -10,       parts: 4 },  // hasta -10% cuenta → 4 partes
-    { maxLoss: -15,       parts: 5 },  // hasta -15% cuenta → 5 partes
-    { maxLoss: -Infinity, parts: 6 },  // más de -15% cuenta → 6 partes
+    { minPnl:  5,        parts: 1 },  // más de +5% cuenta   → 1 parte
+    { minPnl:  0,        parts: 2 },  // hasta +5% cuenta    → 2 partes
+    { minPnl: -5,        parts: 3 },  // hasta -5% cuenta    → 3 partes
+    { minPnl: -10,       parts: 4 },  // hasta -10% cuenta   → 4 partes
+    { minPnl: -15,       parts: 5 },  // hasta -15% cuenta   → 5 partes
+    { minPnl: -Infinity, parts: 6 },  // más de -15% cuenta  → 6 partes
   ],
 
   // Máximo de recargas DCA por día por par
@@ -46,7 +49,7 @@ module.exports = {
   // Indicadores técnicos
   indicators: {
     rsiPeriod: 14,
-    rsiOverbought: 40,    // RSI > 40 = señal de entrada para short
+    rsiOverbought: 70,    // RSI > 70 = señal de entrada para short
     emaPeriod: 20,
     timeframe: '4h',
     klinesLimit: 100,     // velas históricas a consultar
