@@ -178,6 +178,32 @@ async function main() {
 
   // Inicializar Telegram
   telegram.init();
+
+  // Handler del comando /extend <par>
+  // Uso: /extend eth  o  /extend ada  o  /extend ETHUSDT
+  telegram.onCommand(async (msg) => {
+    const text = (msg.text || '').trim().toLowerCase();
+    if (!text.startsWith('/extend')) return;
+
+    const arg = text.replace('/extend', '').trim();
+    // Normalizar: "eth" → "ETHUSDT", "ada" → "ADAUSDT", o símbolo completo
+    const aliasMap = { eth: 'ETHUSDT', ada: 'ADAUSDT' };
+    const symbol = aliasMap[arg] || arg.toUpperCase();
+
+    if (!config.pairs.includes(symbol)) {
+      await telegram.sendExtendError(`Par no reconocido: *${arg || '(vacío)'}*\nUso: \`/extend eth\` o \`/extend ada\``);
+      return;
+    }
+
+    const result = await position.enableExtraParts(state, symbol);
+    if (result.ok) {
+      const pos = position.getPosition(state, symbol);
+      console.log(`[/extend] Pool extra activado para ${symbol}`);
+      await telegram.sendExtendOk(symbol, pos);
+    } else {
+      await telegram.sendExtendError(result.reason);
+    }
+  });
   await telegram.sendStartup();
 
   // Chequeo inicial al arrancar

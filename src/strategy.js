@@ -38,7 +38,8 @@ function shouldDCA(position, currentPrice, klines1h = null) {
 
   const pnlPercent = calcShortPnL(position.avgPrice, currentPrice);
   const pnlCuenta = Math.round(pnlPercent * config.leverage * 100) / 100;
-  const partsRemaining = config.totalParts - position.partsUsed;
+  const totalAllowed = config.totalParts + (position.extraPartsEnabled ? config.extraParts : 0);
+  const partsRemaining = totalAllowed - position.partsUsed;
 
   // Límite de 1 DCA por día (incluye el día de apertura)
   const today = localDateString();

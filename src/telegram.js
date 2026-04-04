@@ -22,7 +22,7 @@ function init() {
   }
 
   chatIds = rawChatIds.split(',').map((id) => id.trim()).filter(Boolean);
-  bot = new TelegramBot(token, { polling: false });
+  bot = new TelegramBot(token, { polling: true });
   console.log(`✅ Telegram bot inicializado (${chatIds.length} destinatario${chatIds.length > 1 ? 's' : ''})`);
 }
 
@@ -204,4 +204,44 @@ async function sendStartup() {
   await send(text);
 }
 
-module.exports = { init, send, sendEntryAlert, sendDCAAlert, sendTPAlert, sendRiskAlert, sendDailySummary, sendStartup, sendNoSignalReport };
+module.exports = { init, send, sendEntryAlert, sendDCAAlert, sendTPAlert, sendRiskAlert, sendDailySummary, sendStartup, sendNoSignalReport, onCommand, sendExtendOk, sendExtendError };
+
+/**
+ * Registra un handler para mensajes/comandos entrantes.
+ * Solo acepta mensajes de chat IDs autorizados.
+ * @param {function} handler - fn(msg) llamado por cada mensaje recibido
+ */
+function onCommand(handler) {
+  if (!bot) return;
+  bot.on('message', (msg) => {
+    const fromId = String(msg.chat.id);
+    if (!chatIds.includes(fromId)) return; // ignorar mensajes de desconocidos
+    handler(msg);
+  });
+}
+
+/**
+ * Confirma la activación del pool extra para un par.
+ */
+async function sendExtendOk(symbol, pos) {
+  const totalAllowed = config.totalParts + config.extraParts;
+  const remaining = totalAllowed - pos.partsUsed;
+  const text = `
+✅ *POOL EXTRA ACTIVADO — ${symbol}*
+
+📦 Partes base agotadas: *${config.totalParts}/${config.totalParts}*
+➕ Partes extra disponibles: *${config.extraParts}*
+📦 Total ahora disponible: *${totalAllowed}* (restantes: *${remaining}*)
+💵 Capital extra: *${formatUSD(config.extraParts * config.partValue)}*
+
+El DCA seguirá operando normalmente con las partes extra.
+  `.trim();
+  await send(text);
+}
+
+/**
+ * Informa por qué no se pudo activar el pool extra.
+ */
+async function sendExtendError(reason) {
+  await send(`❌ *No se pudo activar el pool extra*\n\n${reason}`);
+}

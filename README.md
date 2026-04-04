@@ -11,7 +11,7 @@ Cada hora el bot consulta la API pública de Binance, analiza indicadores técni
 
 | Alerta | Cuándo se dispara |
 |---|---|
-| 📉 **Entrada** | RSI 4h ≥ 40, con precio sobre EMA20 (señal fuerte) o sin ella (señal media) |
+| 📉 **Entrada** | RSI 4h ≥ 70, con precio sobre EMA20 (señal fuerte) o sin ella (señal media) |
 | 🔄 **DCA** | PnL positivo hasta +5% (señal de recarga leve) o negativo según reglas de pérdida (−5/−10/−15%/más) |
 | ✅ **Take Profit** | PnL acumulado ≥ +15% |
 | ⚠️ **Riesgo** | Precio a menos del 5% del precio de liquidación estimado |
@@ -33,6 +33,7 @@ Cuando no hay señal, el bot reporta el estado de RSI y EMA en consola para diag
   - PnL hasta −15% → 5 partes
   - PnL más de −15% → 6 partes
 - **Fallback DCA:** si a las 21:00 no se ejecutó recarga y la posición está negativa, se ejecuta igual (ignorando filtro RSI 1h)
+- **Pool extra (opcional):** cuando se agotan las 30 partes base con una posición vigente, se pueden habilitar 30 partes adicionales enviando el comando `/extend eth` o `/extend ada` desde Telegram. Solo puede activarse una vez por posición.
 - **Take Profit:** +15% de ganancia en cuenta (= 3% bajada de precio a 5x leverage)
 - **Stop Loss:** sin SL (estrategia con liquidación como límite)
 - **Liquidación estimada:** `avgPrice × 1.20` (short 5x)
@@ -135,7 +136,8 @@ El bot imprime en consola el estado de cada par en cada chequeo y envía alertas
 | `pairs` | `['ETHUSDT', 'ADAUSDT']` | Pares a monitorear |
 | `leverage` | `5` | Leverage de la estrategia |
 | `capitalPerPair` | `3000` | Capital total por par en USD |
-| `totalParts` | `30` | Partes totales de capital |
+| `totalParts` | `30` | Partes totales de capital (base) |
+| `extraParts` | `30` | Partes extra habilitables con `/extend` (una vez por posición) |
 | `initialParts` | `3` | Partes en la entrada inicial |
 | `dcaRules` | `[{minPnl:5,parts:1},{minPnl:0,parts:2},{minPnl:-5,parts:3},{minPnl:-10,parts:4},{minPnl:-15,parts:5},{minPnl:-Infinity,parts:6}]` | Reglas DCA: PnL en % cuenta → partes a agregar |
 | `maxDCAPerDay` | `1` | Máximo recargas DCA por día por par |

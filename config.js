@@ -11,6 +11,9 @@ module.exports = {
   // Número de partes en que se divide el capital
   totalParts: 30,
 
+  // Partes extra habilitables mediante comando /extend (por posición, una sola vez)
+  extraParts: 30,
+
   // Valor de cada parte en USD (calculado)
   get partValue() { return this.capitalPerPair / this.totalParts; },
 

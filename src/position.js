@@ -54,6 +54,7 @@ function createEmptyPosition(symbol) {
     avgPrice: 0,
     totalInvested: 0,  // USD invertido (sin leverage)
     lastDCADate: null, // Fecha del último DCA (YYYY-MM-DD) para limitar 1 por día
+    extraPartsEnabled: false, // true cuando se activó el pool extra con /extend
   };
 }
 
@@ -141,4 +142,30 @@ function calcAvgPrice(entries) {
   return totalParts > 0 ? totalValue / totalParts : 0;
 }
 
-module.exports = { loadState, saveState, getPosition, openPosition, addEntry, closePosition, calcAvgPrice };
+module.exports = { loadState, saveState, getPosition, openPosition, addEntry, closePosition, calcAvgPrice, enableExtraParts };
+
+/**
+ * Activa el pool de partes extra para una posición en curso.
+ * Solo se puede activar si: posición activa, partes base agotadas, y aún no activado.
+ * @param {object} state
+ * @param {string} symbol
+ * @returns {{ ok: boolean, reason: string }}
+ */
+async function enableExtraParts(state, symbol) {
+  const pos = getPosition(state, symbol);
+
+  if (!pos.active) {
+    return { ok: false, reason: `No hay posición activa para ${symbol}.` };
+  }
+  if (pos.extraPartsEnabled) {
+    return { ok: false, reason: `El pool extra ya fue activado para ${symbol}.` };
+  }
+  if (pos.partsUsed < config.totalParts) {
+    const remaining = config.totalParts - pos.partsUsed;
+    return { ok: false, reason: `Aún quedan ${remaining} partes base disponibles en ${symbol}. El pool extra se habilita solo cuando se agotan las ${config.totalParts}.` };
+  }
+
+  pos.extraPartsEnabled = true;
+  await saveState(state);
+  return { ok: true, reason: '' };
+}
